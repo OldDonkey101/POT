@@ -1,0 +1,37 @@
+package hx.mbt.pot;
+
+import hx.mbt.fsm.InputSequence;
+import hx.mbt.fsm.Sequence;
+
+import java.util.Set;
+
+public class TestCostHeavyReset implements TestCost{
+    @Override
+    public int costGrowth(Set<InputSequence> TS, InputSequence seqToAdd) {
+        //If seqToAdd in Pref(TS), return 0.
+        if (seqToAdd.isPrefixOf(TS)) {
+            return 0;
+        }
+        //If seqToAdd has a prefix in partialTS.
+        Set<InputSequence> partialTS = Sequence.partialSet(TS);
+        int cost = seqToAdd.getLength();
+        for (InputSequence seq : partialTS) {
+            if (seq.isPrefixOf(seqToAdd)) {
+               return 0;
+            }
+        }
+
+        //Other conditions
+        return 1;
+    }
+
+    @Override
+    public int costGrowth(Set<InputSequence> TS, Set<InputSequence> seqSetToAdd) {
+        int cost = 0;
+        for (InputSequence seqToAdd : seqSetToAdd) {
+            cost += costGrowth(TS, seqToAdd);
+            TS.add(seqToAdd);
+        }
+        return cost;
+    }
+}
