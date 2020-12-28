@@ -175,14 +175,26 @@ public class POT {
             Collection<InputSequence> seqsAfterAlpha = new HashSet<>();
             Set<InputSequence> partialTS = Sequence.partialSet(TS.getInputSeqSet());
             for (InputSequence inSeq: partialTS) {
-                if (inSeq.hasPrefix(alpha1) || inSeq.hasPrefix(alpha2)) {
+                if (inSeq.hasPrefix(alpha1)) {
                     seqsAfterAlpha.add(inSeq.removePrefix(alpha1));
                 }
+                if (inSeq.hasPrefix(alpha1)) {
+                    seqsAfterAlpha.add(inSeq.removePrefix(alpha2));
+                }
             }
-            //check whether it is sepSeq.
+
             for (InputSequence inSeq : seqsAfterAlpha) {
                 if (M.isSepSeq(s1, s2, inSeq)) {
-                    candSepSeqs.add(M.getShortestSepSeqPrefix(s1, s2, inSeq));
+                    candSepSeqs.add(inSeq);
+                } else {
+                    State s1Post = M.postState(s1, inSeq);
+                    State s2Post = M.postState(s2, inSeq);
+                    if (!s1Post.equals(s2Post)) {
+                        Set<InputSequence> sepsForPostState = M.getSepSeqSet(s1Post, s2Post, rhoPartitions);
+                        for (InputSequence seqSepForPost : sepsForPostState) {
+                            candSepSeqs.add(Sequence.concatenateTwoSequence(inSeq, seqSepForPost));
+                        }
+                    }
                 }
             }
 
